@@ -29,7 +29,18 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Hi Teacher, This is my job!")
 
 	//打印日志
-	addr := strings.Split(r.RemoteAddr, ":")
+	addr := getCurrentIp(r)
 	fmt.Println(QueryTime(), addr[0], r.Method, r.RequestURI, http.StatusOK)
+
+}
+
+func getCurrentIp(r *http.Request) string {
+
+	ip := r.Header.Get("X-Real-IP")
+	if ip == "" {
+		ip = strings.Split(r.RemoteAddr, ":")[0]
+	}
+
+	return ip
 
 }
