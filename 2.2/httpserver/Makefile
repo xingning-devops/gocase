@@ -1,9 +1,9 @@
 export tag=v1.0
 
-release:
+build:
 	echo "build images"
 	docker build -t xingning03/httpserver:${tag} .
 
-push: release
+push: build
 	echo "push"
 	docker push xingning03/httpserver:${tag}
