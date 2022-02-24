@@ -1,8 +1,8 @@
 package model
 
 import (
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -25,6 +25,6 @@ func Healthz(w http.ResponseWriter, r *http.Request) {
 
 	//打印日志
 	addr := strings.Split(r.RemoteAddr, ":")
-	fmt.Println(QueryTime(), addr[0], r.Method, r.RequestURI, http.StatusOK)
+	log.Println(addr[0], r.Method, r.RequestURI, http.StatusOK)
 
 }
