@@ -1,0 +1,35 @@
+---
+#创建httpserver pod
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpserver
+  template:
+    metadata:
+      labels:
+        app: httpserver
+    spec:
+      containers:
+        - name: httpserver
+          image: xingning03/httpserver:v1.0
+          #健康探针,优雅启动
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 2
+          #QOS资源限制
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: 1
+            requests:
+              memory: 256Mi
+              cpu: 100m

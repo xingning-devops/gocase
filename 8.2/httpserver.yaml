@@ -1,0 +1,78 @@
+---
+#创建httpserver pod
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpserver
+  template:
+    metadata:
+      labels:
+        app: httpserver
+    spec:
+      containers:
+        - name: httpserver
+          image: xingning03/httpserver:v1.0
+          #健康探针,优雅启动
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 2
+          #QOS资源限制
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: 1
+            requests:
+              memory: 256Mi
+              cpu: 100m
+
+---
+#创建service
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpserver-svc
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      protocol: TCP
+      name: http-svc
+  selector:
+    app: httpserver
+
+---
+#创建ingress
+#
+#创建证书： openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=xing.com/O=xing" -addext "subjectAltName = DNS:xing.com"
+#创建tls:   kubectl create secret tls xing-tls --cert=./tls.crt --key=./tls.key
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gateway
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+    - hosts:
+        - xing.com
+      secretName: xing-tls
+  rules:
+    - host: xing.com
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: httpserver-svc
+                port:
+                  number: 80
