@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -27,7 +28,8 @@ func main() {
 	processed := make(chan struct{})
 	go func() {
 		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt)
+		//监听 Ctrl+C 信号
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		<-c
 
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
