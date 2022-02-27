@@ -18,6 +18,7 @@ spec:
         - name: httpserver
           image: xingning03/httpserver:v1.0
           #健康探针,优雅启动
+          #优雅终止在代码中实现，接收k8s发起的SIGTERM指令达到目的
           readinessProbe:
             httpGet:
               path: /healthz
