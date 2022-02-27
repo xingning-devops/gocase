@@ -31,7 +31,6 @@ func main() {
 		//监听 Ctrl+C 信号
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		<-c
-
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
 		if err := s.Shutdown(ctx); nil != err {
