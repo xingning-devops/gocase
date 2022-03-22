@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpserver2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpserver2
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+      labels:
+        app: httpserver2
+    spec:
+      containers:
+        - name: httpserver2
+          imagePullPolicy: Always
+          image: xingning03/server:v2.0-metrics
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: 1
+            requests:
+              memory: 256Mi
+              cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpserver2
+spec:
+  ports:
+    - name: httpserver2-svc
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: httpserver2
